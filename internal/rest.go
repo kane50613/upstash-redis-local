@@ -117,6 +117,24 @@ func (s *Server) handleSingleExecute(ctx *fasthttp.RequestCtx) {
 	s.respond(ctx, result, code)
 }
 
+type interfaceSlice []interface{}
+
+func (slice interfaceSlice) MarshalBinary() ([]byte, error) {
+	return json.Marshal(slice)
+}
+
+func (slice *interfaceSlice) UnmarshalBinary(data []byte) error {
+	return json.Unmarshal(data, slice)
+}
+
+func convertToInterfaceSlice(args ...interface{}) interfaceSlice {
+	slice := make(interfaceSlice, len(args))
+	
+	copy(slice, args)
+
+	return slice
+}
+
 func (s *Server) handlePipelineExecute(ctx *fasthttp.RequestCtx) {
 	var pipelineRequests [][]interface{}
 
@@ -146,7 +164,7 @@ func (s *Server) executeCommand(commandName string, args ...interface{}) (interf
 		return s.aclRestToken(commandName, args...)
 	}
 
-	res, err := s.RedisConn.Do(ctx, commandName, args).Result()
+	res, err := s.RedisConn.Do(ctx, commandName, convertToInterfaceSlice(args...)).Result()
 
 	if err != nil {
 		s.Logger.Error("Error in executing command", zap.Error(err))
