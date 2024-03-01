@@ -6,5 +6,4 @@ COPY . .
 
 RUN make build
 
-EXPOSE 8000
-ENTRYPOINT ["./bin/upstash-redis-local"]
+RUN sleep 1 && ./bin/upstash-redis-local
