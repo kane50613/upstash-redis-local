@@ -129,7 +129,7 @@ func (slice *interfaceSlice) UnmarshalBinary(data []byte) error {
 
 func convertToInterfaceSlice(args ...interface{}) interfaceSlice {
 	slice := make(interfaceSlice, len(args))
-	
+
 	copy(slice, args)
 
 	return slice
@@ -166,7 +166,7 @@ func (s *Server) executeCommand(commandName string, args ...interface{}) (interf
 
 	res, err := s.RedisConn.Do(ctx, commandName, convertToInterfaceSlice(args...)).Result()
 
-	if err != nil {
+	if err != nil && err != redis.Nil {
 		s.Logger.Error("Error in executing command", zap.Error(err))
 		return errorResult{Error: err.Error()}, fasthttp.StatusBadRequest
 	}
