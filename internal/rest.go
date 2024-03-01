@@ -149,6 +149,7 @@ func (s *Server) executeCommand(commandName string, args ...interface{}) (interf
 	res, err := s.RedisConn.Do(ctx, commandName, args).Result()
 
 	if err != nil {
+		s.Logger.Error("Error in executing command", zap.Error(err))
 		return errorResult{Error: err.Error()}, fasthttp.StatusBadRequest
 	}
 
