@@ -38,7 +38,7 @@ func main() {
 }
 
 func connectToRedis(addr string) redis.Conn {
-	conn, err := redis.Dial("tcp", addr)
+	conn, err := redis.DialURL(addr)
 	if err != nil {
 		log.Fatalf("err: %v", err)
 	}
