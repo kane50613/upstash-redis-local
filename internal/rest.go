@@ -164,9 +164,11 @@ func (s *Server) executeCommand(commandName string, args ...interface{}) (interf
 		return s.aclRestToken(commandName, args...)
 	}
 
-	res, err := s.RedisConn.Do(ctx, commandName, convertToInterfaceSlice(args...)).Result()
+	convertedArgs := convertToInterfaceSlice(args...)
 
-	s.Logger.Info("Command Executed", zap.String("command", commandName), zap.Any("args", args), zap.Any("result", res))
+	res, err := s.RedisConn.Do(ctx, commandName, convertedArgs).Result()
+
+	s.Logger.Info("Command Executed", zap.String("command", commandName), zap.Any("args", args), zap.Any("converted", convertedArgs), zap.Any("result", res))
 
 	if err != nil && err != redis.Nil {
 		s.Logger.Error("Error in executing command", zap.Error(err))
