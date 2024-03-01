@@ -1,9 +1,10 @@
-FROM golang:1.21
+FROM golang:latest
 
 WORKDIR /app
 
 COPY . .
 
-RUN make build
+RUN go get -d -v ./...
+RUN go install -v ./...
 
-RUN sleep 1 && ./bin/upstash-redis-local
+CMD sleep 1 && app
