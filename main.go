@@ -7,7 +7,7 @@ import (
 	"time"
 	"upstash-redis-local/internal"
 
-	"github.com/gomodule/redigo/redis"
+	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -37,10 +37,12 @@ func main() {
 	defer server.Serve()
 }
 
-func connectToRedis(addr string) redis.Conn {
-	conn, err := redis.DialURL(addr)
+func connectToRedis(addr string) *redis.Client {
+	opts, err := redis.ParseURL(addr)
+
 	if err != nil {
 		log.Fatalf("err: %v", err)
 	}
-	return conn
+
+	return redis.NewClient(opts)
 }

@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"context"
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
@@ -10,16 +11,18 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/gomodule/redigo/redis"
+	"github.com/redis/go-redis/v9"
 	"github.com/valyala/fasthttp"
 	"go.uber.org/zap"
 )
+
+var ctx = context.Background()
 
 // Server Configurations
 type Server struct {
 	Address     string
 	APIToken    string
-	RedisConn   redis.Conn
+	RedisConn   *redis.Client
 	credentials map[string]credentials
 	mutex       sync.Mutex
 	Logger      *zap.Logger
@@ -142,10 +145,13 @@ func (s *Server) executeCommand(commandName string, args ...interface{}) (interf
 	if strings.ToLower(commandName) == "acl" && len(args) > 0 && strings.ToLower(fmt.Sprint(args[0])) == "resttoken" {
 		return s.aclRestToken(commandName, args...)
 	}
-	res, err := s.RedisConn.Do(commandName, args...)
+
+	res, err := s.RedisConn.Do(ctx, commandName, args).Result()
+
 	if err != nil {
 		return errorResult{Error: err.Error()}, fasthttp.StatusBadRequest
 	}
+
 	return successResult{Result: res}, fasthttp.StatusOK
 }
 
